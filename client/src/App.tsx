@@ -1,8 +1,15 @@
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BasePage } from './pages/BasePage';
+import { CheckPasswordPage } from './pages/CheckPasswordPage';
+
 const App = () => {
   return(
-    <div>
-      <h1>Начало</h1>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<BasePage />} />
+        <Route path='/checkpasswords' element={<CheckPasswordPage />} />
+      </Routes>
+  </BrowserRouter>
   )
 }
 
