@@ -1,5 +1,5 @@
 import { Box, Button, Stack, Typography } from "@mui/material"
-import { ModalWindow } from "../components/ModelWindow"
+import { ModalWindow } from "../components/ModalWindow"
 import { useState } from "react"
 
 export const BasePage = () =>{
