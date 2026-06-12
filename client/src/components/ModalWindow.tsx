@@ -1,4 +1,4 @@
-import { Box, Modal, Stack, TextField, Button, FormGroup, FormControlLabel, Checkbox, Snackbar, Alert, type AlertColor} from "@mui/material"
+import { Box, Modal, Stack, TextField, Button, FormGroup, FormControlLabel, Checkbox, Snackbar, Alert, type AlertColor, CircularProgress} from "@mui/material"
 import { useState } from "react"
 import { generatePassword } from "../services/generatePassword"
 
@@ -16,6 +16,7 @@ export const ModalWindow = ({open, close}) => {
     const [openAlert,setOpenAlert]=useState(false)
     const [textAlert, setTextAlert]=useState('')
     const [alertType, setAlertType] = useState<AlertColor>('success')
+    const [loading, setLoading] = useState(false)
 
     const handleRandomChange = (event) => {
         const checked = event.target.checked
@@ -63,6 +64,7 @@ export const ModalWindow = ({open, close}) => {
     }
 
     const handlerUploadPassword = () => {
+        setLoading(true)
         const random = Math.floor(Math.random() * 2)+1
         if (random===1) {
             setTimeout(() => {
@@ -70,12 +72,14 @@ export const ModalWindow = ({open, close}) => {
                 setTextAlert('Пароль успешно сохранен!')
                 setAlertType('success')
                 setOpenAlert(true)
+                setLoading(false)
             },5000)     
         }else{
             setTimeout(() => {
                 setTextAlert('Ошибка')
                 setAlertType('error')
                 setOpenAlert(true)
+                setLoading(false)
             },5000)  
         }
     }
@@ -124,15 +128,15 @@ export const ModalWindow = ({open, close}) => {
                         
                         <Stack direction="row" spacing={3}>
                             <FormGroup>
-                                <FormControlLabel control={<Checkbox defaultChecked color="default" checked={letter} onChange={(event) => setLetter(event.target.checked)} disabled={upper || lower || random}/>} label="Использование букв" />
-                                <FormControlLabel control={<Checkbox defaultChecked color="default" checked={number} onChange={(event) => setNumber(event.target.checked)} disabled={upper || lower || random}/>} label="Использование цифр" />
-                                <FormControlLabel control={<Checkbox defaultChecked color="default" checked={symbol} onChange={(event) => setSymbol(event.target.checked)} disabled={upper || lower || random}/>} label="Использование спецсимволов" />
+                                <FormControlLabel control={<Checkbox color="default" checked={letter} onChange={(event) => setLetter(event.target.checked)} disabled={upper || lower || random}/>} label="Использование букв" />
+                                <FormControlLabel control={<Checkbox color="default" checked={number} onChange={(event) => setNumber(event.target.checked)} disabled={upper || lower || random}/>} label="Использование цифр" />
+                                <FormControlLabel control={<Checkbox color="default" checked={symbol} onChange={(event) => setSymbol(event.target.checked)} disabled={upper || lower || random}/>} label="Использование спецсимволов" />
                             </FormGroup>
 
                             <FormGroup>
-                                <FormControlLabel control={<Checkbox defaultChecked color="default" checked={lower} onChange={handleLowerChange} disabled={upper || random}/>} label="Нижний регистер" />
-                                <FormControlLabel control={<Checkbox defaultChecked color="default" checked={upper} onChange={handleUpperChange} disabled={lower || random}/>} label="Верхний регистер" />
-                                <FormControlLabel control={<Checkbox defaultChecked color="default" checked={random} onChange={handleRandomChange} disabled={upper || lower}/>} label="Случайный регистер" />
+                                <FormControlLabel control={<Checkbox color="default" checked={lower} onChange={handleLowerChange} disabled={upper || random}/>} label="Нижний регистер" />
+                                <FormControlLabel control={<Checkbox color="default" checked={upper} onChange={handleUpperChange} disabled={lower || random}/>} label="Верхний регистер" />
+                                <FormControlLabel control={<Checkbox color="default" checked={random} onChange={handleRandomChange} disabled={upper || lower}/>} label="Случайный регистер" />
                             </FormGroup>
 
                             <TextField id="outlined-basic" label="Длина" variant="outlined" value={lenght} onChange={(event) => setLenght(event.target.value)} sx={{
@@ -141,7 +145,7 @@ export const ModalWindow = ({open, close}) => {
                                 height:55,
                                 width:100,
                             }}/>
-                            <Button variant="contained" disabled={!service || !password || !lenght} onClick = {handlerUploadPassword} sx={{width:130}}>Сохранить</Button>
+                            <Button variant="contained" disabled={!service || !password || !lenght || loading } onClick = {handlerUploadPassword} sx={{width:130}}>{loading ? "Сохранение..." : "Сохранить"}</Button>
                         </Stack>
                     </Stack>
                 </Box>

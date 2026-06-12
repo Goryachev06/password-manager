@@ -1,12 +1,15 @@
 import { Box, Button, Stack, Typography } from "@mui/material"
 import { ModalWindow } from "../components/ModalWindow"
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 export const BasePage = () =>{
     const [modalOpen, setModalOpen] = useState(false)
     const handleCreatePassword = () =>{
         setModalOpen(true)
     }
+    const navigate =useNavigate()
+
     return(
         <Box>
             <Box sx={{
@@ -42,7 +45,7 @@ export const BasePage = () =>{
                             height: 100,
                         }} onClick={handleCreatePassword}>Создать пароль</Button>
 
-                        <Button variant="contained" sx={{
+                        <Button variant="contained" onClick={() => navigate("/checkpasswords")} sx={{
                             color: "black",
                             backgroundColor: "#D1D7E0",
                             width: 250,
