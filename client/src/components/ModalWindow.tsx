@@ -13,50 +13,78 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { generatePassword } from "../services/generatePassword";
+import type { Format, Formats } from "../types/Format";
 
-export const ModalWindow = ({ open, close }) => {
-	const [number, setNumber] = useState(false);
-	const [letter, setLetter] = useState(false);
-	const [symbol, setSymbol] = useState(false);
-	const [lower, setLower] = useState(false);
-	const [upper, setUpper] = useState(false);
-	const [chars, setchars] = useState("");
-	const [service, setService] = useState("");
-	const [lenght, setLenght] = useState("");
-	const [random, setRandom] = useState(false);
-	const [password, setPassword] = useState("");
-	const [openAlert, setOpenAlert] = useState(false);
-	const [textAlert, setTextAlert] = useState("");
+export const ModalWindow = ({
+	open,
+	close,
+}: {
+	open: boolean;
+	close: () => void;
+}) => {
+	const [number, setNumber] = useState<boolean>(false);
+	const [letter, setLetter] = useState<boolean>(false);
+	const [symbol, setSymbol] = useState<boolean>(false);
+	const [lower, setLower] = useState<boolean>(false);
+	const [upper, setUpper] = useState<boolean>(false);
+	const [chars, setChars] = useState<string>("");
+	const [example, setExample] = useState<boolean>(false);
+	const [service, setService] = useState<string>("");
+	const [lenght, setLength] = useState<string>("");
+	const [random, setRandom] = useState<boolean>(false);
+	const [password, setPassword] = useState<string>("");
+	const [openAlert, setOpenAlert] = useState<boolean>(false);
+	const [textAlert, setTextAlert] = useState<string>("");
 	const [alertType, setAlertType] = useState<AlertColor>("success");
-	const [loading, setLoading] = useState(false);
+	const [loading, setLoading] = useState<boolean>(false);
 
-	const handleRandomChange = (event) => {
+	const handleExampleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const checked = event.target.checked;
+		setExample(checked);
+		if (checked) {
+			setLetter(false);
+			setNumber(false);
+			setSymbol(false);
+			setLower(false);
+			setUpper(false);
+			setRandom(false);
+		}
+	};
+
+	const handleRandomChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const checked = event.target.checked;
 		setRandom(checked);
 		if (checked) {
-			setLetter(false);
-			setNumber(false);
-			setSymbol(false);
+			setLower(false);
+			setUpper(false);
 		}
 	};
 
-	const handleLowerChange = (event) => {
+	const handleLowerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const checked = event.target.checked;
 		setLower(checked);
 		if (checked) {
-			setLetter(false);
-			setNumber(false);
-			setSymbol(false);
+			setUpper(false);
+			setRandom(false);
 		}
 	};
 
-	const handleUpperChange = (event) => {
+	const handleUpperChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const checked = event.target.checked;
 		setUpper(checked);
 		if (checked) {
-			setLetter(false);
-			setNumber(false);
-			setSymbol(false);
+			setLower(false);
+			setRandom(false);
+		}
+	};
+
+	const handleLetterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const checked = event.target.checked;
+		setLetter(checked);
+		if (!checked) {
+			setLower(false);
+			setUpper(false);
+			setRandom(false);
 		}
 	};
 
@@ -70,9 +98,22 @@ export const ModalWindow = ({ open, close }) => {
 			RandomRegister: random,
 			long: Number(lenght),
 			chars: chars,
+			example: example,
 		};
-		const password = generatePassword(finalOptions);
-		setPassword(password);
+		try {
+			const password = generatePassword(finalOptions);
+			setPassword(password || "");
+			setAlertType("success");
+			setTextAlert("Пароль успешно сгенерирован!");
+			setOpenAlert(true);
+		} catch (error) {
+			setPassword("");
+			setAlertType("error");
+			if (error instanceof Error) {
+				setTextAlert(error.message);
+			}
+			setOpenAlert(true);
+		}
 	};
 
 	const handlerUploadPassword = () => {
@@ -80,11 +121,29 @@ export const ModalWindow = ({ open, close }) => {
 		const random = Math.floor(Math.random() * 2) + 1;
 		if (random === 1) {
 			setTimeout(() => {
-				localStorage.setItem(service, password);
+				const saved = localStorage.getItem("passwords");
+				const passwords: Formats = saved ? JSON.parse(saved) : [];
+				const newRecord: Format = {
+					service: service,
+					password: password,
+				};
+				passwords.push(newRecord);
+				localStorage.setItem("passwords", JSON.stringify(passwords));
+
 				setTextAlert("Пароль успешно сохранен!");
 				setAlertType("success");
 				setOpenAlert(true);
 				setLoading(false);
+				setService("");
+				setPassword("");
+				setChars("");
+				setLength("");
+				setNumber(false);
+				setLetter(false);
+				setSymbol(false);
+				setLower(false);
+				setUpper(false);
+				setRandom(false);
 			}, 5000);
 		} else {
 			setTimeout(() => {
@@ -144,8 +203,8 @@ export const ModalWindow = ({ open, close }) => {
 							label="Введите набор символов"
 							variant="outlined"
 							value={chars}
-							onChange={(event) => setchars(event.target.value)}
-							disabled={!upper && !lower && !random}
+							onChange={(event) => setChars(event.target.value)}
+							disabled={!example}
 							sx={{
 								backgroundColor: "white",
 								borderRadius: 1,
@@ -171,7 +230,13 @@ export const ModalWindow = ({ open, close }) => {
 							disabled={
 								!lenght ||
 								!service ||
-								(!letter && !number && !symbol && !upper && !lower && !random)
+								(!letter &&
+									!number &&
+									!symbol &&
+									!upper &&
+									!lower &&
+									!random &&
+									!example)
 							}
 							onClick={handleCreatePassword}
 						>
@@ -185,11 +250,11 @@ export const ModalWindow = ({ open, close }) => {
 										<Checkbox
 											color="default"
 											checked={letter}
-											onChange={(event) => setLetter(event.target.checked)}
-											disabled={upper || lower || random}
+											onChange={handleLetterChange}
+											disabled={example}
 										/>
 									}
-									label="Использование букв"
+									label="Использовать ли буквы во время генерации пароля"
 								/>
 								<FormControlLabel
 									control={
@@ -197,10 +262,10 @@ export const ModalWindow = ({ open, close }) => {
 											color="default"
 											checked={number}
 											onChange={(event) => setNumber(event.target.checked)}
-											disabled={upper || lower || random}
+											disabled={example}
 										/>
 									}
-									label="Использование цифр"
+									label="Использовать ли цифры во время генерации пароля"
 								/>
 								<FormControlLabel
 									control={
@@ -208,10 +273,10 @@ export const ModalWindow = ({ open, close }) => {
 											color="default"
 											checked={symbol}
 											onChange={(event) => setSymbol(event.target.checked)}
-											disabled={upper || lower || random}
+											disabled={example}
 										/>
 									}
-									label="Использование спецсимволов"
+									label="Использовать ли спецсимволы во время генерации пароля"
 								/>
 							</FormGroup>
 
@@ -222,10 +287,10 @@ export const ModalWindow = ({ open, close }) => {
 											color="default"
 											checked={lower}
 											onChange={handleLowerChange}
-											disabled={upper || random}
+											disabled={!letter || example || random || upper}
 										/>
 									}
-									label="Нижний регистер"
+									label="Использовать нижний регистр"
 								/>
 								<FormControlLabel
 									control={
@@ -233,10 +298,10 @@ export const ModalWindow = ({ open, close }) => {
 											color="default"
 											checked={upper}
 											onChange={handleUpperChange}
-											disabled={lower || random}
+											disabled={!letter || example || random || lower}
 										/>
 									}
-									label="Верхний регистер"
+									label="Использовать верхний регистр"
 								/>
 								<FormControlLabel
 									control={
@@ -244,10 +309,20 @@ export const ModalWindow = ({ open, close }) => {
 											color="default"
 											checked={random}
 											onChange={handleRandomChange}
-											disabled={upper || lower}
+											disabled={!letter || example || lower || upper}
 										/>
 									}
-									label="Случайный регистер"
+									label="Использовать случайный регистр"
+								/>
+								<FormControlLabel
+									control={
+										<Checkbox
+											color="default"
+											checked={example}
+											onChange={handleExampleChange}
+										/>
+									}
+									label="Использовать свой набор символов"
 								/>
 							</FormGroup>
 
@@ -256,7 +331,7 @@ export const ModalWindow = ({ open, close }) => {
 								label="Длина"
 								variant="outlined"
 								value={lenght}
-								onChange={(event) => setLenght(event.target.value)}
+								onChange={(event) => setLength(event.target.value)}
 								sx={{
 									backgroundColor: "white",
 									borderRadius: 1,

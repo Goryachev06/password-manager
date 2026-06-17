@@ -7,4 +7,5 @@ export interface PasswordOptions {
 	RandomRegister: boolean;
 	long: number;
 	chars: string;
+	example: boolean;
 }

@@ -4,10 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { ModalWindow } from "../components/ModalWindow";
 
 export const BasePage = () => {
-	const [modalOpen, setModalOpen] = useState(false);
-	const handleCreatePassword = () => {
-		setModalOpen(true);
-	};
+	const [modalOpen, setModalOpen] = useState<boolean>(false);
+
 	const navigate = useNavigate();
 
 	return (
@@ -57,7 +55,7 @@ export const BasePage = () => {
 								width: 250,
 								height: 100,
 							}}
-							onClick={handleCreatePassword}
+							onClick={() => setModalOpen(true)}
 						>
 							Создать пароль
 						</Button>

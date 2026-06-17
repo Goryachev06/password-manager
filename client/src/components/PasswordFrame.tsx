@@ -1,32 +1,9 @@
-import {
-	Alert,
-	Box,
-	Button,
-	Snackbar,
-	Stack,
-	TextField,
-	Typography,
-} from "@mui/material";
-import { useState } from "react";
+import { Box, Stack, TextField, Typography } from "@mui/material";
 import type { Format } from "../types/Format";
 
 export const PasswordFrame = ({ info }: { info: Format }) => {
 	const password = info.password;
 
-	const [openAlert, setOpenAlert] = useState(false);
-	const [textAlert, setTextAlert] = useState("");
-
-	const handleDeletePassword = () => {
-		localStorage.removeItem(info.service);
-		window.location.reload();
-		setTextAlert("Пароль удален!");
-		setOpenAlert(true);
-	};
-	const handleCopyPassword = () => {
-		navigator.clipboard.writeText(info.password);
-		setTextAlert("Пароль скопирован!");
-		setOpenAlert(true);
-	};
 	return (
 		<Box
 			sx={{
@@ -59,30 +36,6 @@ export const PasswordFrame = ({ info }: { info: Format }) => {
 					}}
 				/>
 			</Stack>
-			<Stack spacing={2} direction={"row"}>
-				<Button
-					variant="contained"
-					onClick={handleDeletePassword}
-					sx={{
-						backgroundColor: "red",
-					}}
-				>
-					Удалить
-				</Button>
-				<Button variant="contained" onClick={handleCopyPassword}>
-					Копировать пароль
-				</Button>
-			</Stack>
-			<Snackbar
-				open={openAlert}
-				autoHideDuration={3000}
-				onClose={() => setOpenAlert(false)}
-				anchorOrigin={{ vertical: "top", horizontal: "center" }}
-			>
-				<Alert severity={"success"} onClose={() => setOpenAlert(false)}>
-					{textAlert}{" "}
-				</Alert>
-			</Snackbar>
 		</Box>
 	);
 };

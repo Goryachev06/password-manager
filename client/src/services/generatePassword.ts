@@ -2,7 +2,7 @@ import type { PasswordOptions } from "../types/Options";
 
 const numbers: string[] = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
-const letters: string[] = [
+const lowLetters: string[] = [
 	"a",
 	"b",
 	"c",
@@ -29,6 +29,9 @@ const letters: string[] = [
 	"x",
 	"y",
 	"z",
+];
+
+const upLetters: string[] = [
 	"A",
 	"B",
 	"C",
@@ -87,19 +90,64 @@ const symbols: string[] = [
 ];
 
 export const generatePassword = (options: PasswordOptions) => {
-	const addChars: string[] =[]
-	if (options.long > 0) {
+	const addChars: string[] = [];
+
+	if (typeof options.long !== "number") {
+		throw new Error("Длина пароля должна быть целым числом");
+	}
+	if (options.long % 1 !== 0) {
+		throw new Error("Длина пароля должна быть целым числом");
+	}
+
+	if (options.long < 1) {
+		throw new Error("Длина пароля должна быть больше 0");
+	}
+
+	if (options.long > 35) {
+		throw new Error("Длина пароля не может превышать 35");
+	}
+
+	let password = "";
+	if (options.long >= 1) {
 		if (options.letters) {
-			addChars.push(...letters)
+			if (
+				!options.LowRegister &&
+				!options.UpRegister &&
+				!options.RandomRegister
+			) {
+				throw new Error("Выберите один регистр для букв");
+			}
+			if (options.LowRegister) {
+				addChars.push(...lowLetters);
+			}
+			if (options.UpRegister) {
+				addChars.push(...upLetters);
+			}
+			if (options.RandomRegister) {
+				addChars.push(...lowLetters);
+				addChars.push(...upLetters);
+			}
 		}
+
 		if (options.numbers) {
-			addChars.push(...numbers)
+			addChars.push(...numbers);
 		}
 		if (options.symbols) {
-			addChars.push(...symbols)
+			addChars.push(...symbols);
 		}
-		if (options.UpRegister) {
-			if (letters in addChars)
+		if (options.example) {
+			if (options.chars.length == 0) {
+				throw new Error("Введите символы для генерации");
+			}
+			if (options.chars.length > 0) {
+				const exampleChars = options.chars.split("");
+				addChars.push(...exampleChars);
+			}
 		}
-	} 
+		for (let i = 0; i < options.long; i++) {
+			const char = addChars[Math.floor(Math.random() * addChars.length)];
+			password = password + char;
+		}
+		return password;
+	}
 };
