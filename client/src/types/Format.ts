@@ -1,6 +1,6 @@
 export interface Format {
-    service: string;
-    password: string;
+	service: string;
+	password: string;
 }
 
-export type Formats = Format[]
+export type Formats = Format[];
